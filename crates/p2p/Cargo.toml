@@ -2,5 +2,11 @@
 name = "p2p"
 version.workspace = true
 edition.workspace = true
+license.workspace = true
 
 [dependencies]
+async-std = { version = "1.12.0", features = ["attributes"] }
+env_logger = "0.10.0"
+libp2p = { version = "0.51.3", features = ["async-std", "gossipsub", "mdns", "tcp", "macros", "yamux", "noise"] }
+log = { workspace = true }
+lazy_static = { workspace = true }
