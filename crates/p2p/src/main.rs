@@ -50,4 +50,23 @@ async fn main() {
         .message_id_fn(message_id_fn)
         .build()
         .expect("invalid config");
+
+    let topic = gossipsub::IdentTopic::new("test-net");
+    // subscribes to our topic
+    gossipsub.subscribe(&topic)?;
+
+    // Create a Swarm to manage peers and events
+    let mut swarm = {
+        let mdns = mdns::async_io::Behaviour::new(mdns::Config::default(), local_peer_id)?;
+        let behaviour = MyBehaviour { gossipsub, mdns };
+        SwarmBuilder::with_async_std_executor(transport, behaviour, local_peer_id).build()
+    };
+
+    // Read full lines from stdin
+    let mut stdin = io::BufReader::new(io::stdin()).lines().fuse();
+
+    // Listen on all interfaces and whatever port the OS assigns
+    swarm.listen_on("/ip4/0.0.0.0/udp/0/quic-v1".parse()?)?;
+    swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
+
 }
